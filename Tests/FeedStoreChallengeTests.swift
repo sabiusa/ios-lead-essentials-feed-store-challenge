@@ -151,9 +151,13 @@ extension FeedStoreChallengeTests: FailableRetrieveFeedStoreSpecs {
 	}
 
 	func test_retrieve_hasNoSideEffectsOnFailure() throws {
-//		let sut = try makeSUT()
-//
-//		assertThatRetrieveHasNoSideEffectsOnFailure(on: sut)
+		let sut = try makeSUT()
+		
+		simulateContextResultFetchFailure()
+
+		assertThatRetrieveHasNoSideEffectsOnFailure(on: sut)
+		
+		revertForcingResultFetchFailure()
 	}
 
 	private func simulateContextResultFetchFailure() {
