@@ -6,7 +6,7 @@
 //  Copyright © 2021 Essential Developer. All rights reserved.
 //
 
-import Foundation
+import CoreData
 
 public class CoreDataFeedStore: FeedStore {
 	
@@ -27,4 +27,17 @@ public class CoreDataFeedStore: FeedStore {
 	}
 }
 
+@objc(CoreDataFeedImage)
+private class CoreDataFeedImage: NSManagedObject {
+	@NSManaged var id: UUID
+	@NSManaged var imageDescription: String?
+	@NSManaged var location: String?
+	@NSManaged var url: URL
+	@NSManaged var feed: CoreDataFeed
+}
 
+@objc(CoreDataFeed)
+private class CoreDataFeed: NSManagedObject {
+	@NSManaged var timestamp: Date
+	@NSManaged var feedImages: NSOrderedSet
+}
