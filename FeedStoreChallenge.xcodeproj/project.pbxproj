@@ -22,6 +22,7 @@
 		3E13CEC225F35E0500892360 /* XCTestCase+TrackMemoryLeaks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E13CEC125F35E0500892360 /* XCTestCase+TrackMemoryLeaks.swift */; };
 		3E13CEC925F35F1A00892360 /* CoreDataFeedImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E13CEC825F35F1A00892360 /* CoreDataFeedImage.swift */; };
 		3E13CECF25F35F8700892360 /* CoreDataFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E13CECE25F35F8700892360 /* CoreDataFeed.swift */; };
+		3E13CED325F3834400892360 /* CoreDataFeedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E13CED225F3834400892360 /* CoreDataFeedStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +54,7 @@
 		3E13CEC125F35E0500892360 /* XCTestCase+TrackMemoryLeaks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+TrackMemoryLeaks.swift"; sourceTree = "<group>"; };
 		3E13CEC825F35F1A00892360 /* CoreDataFeedImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataFeedImage.swift; sourceTree = "<group>"; };
 		3E13CECE25F35F8700892360 /* CoreDataFeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataFeed.swift; sourceTree = "<group>"; };
+		3E13CED225F3834400892360 /* CoreDataFeedStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataFeedStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -132,6 +134,7 @@
 		3E13CEB025F351A700892360 /* CoreDataFeedStore */ = {
 			isa = PBXGroup;
 			children = (
+				3E13CED225F3834400892360 /* CoreDataFeedStore.swift */,
 				3E13CEC725F35EFE00892360 /* Managed Objects */,
 				3E13CEB125F351E700892360 /* CoreDataFeedStore.xcdatamodeld */,
 			);
@@ -265,6 +268,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3E13CED325F3834400892360 /* CoreDataFeedStore.swift in Sources */,
 				3E13CEC925F35F1A00892360 /* CoreDataFeedImage.swift in Sources */,
 				08CE2BA62285BCB600183A1B /* FeedStore.swift in Sources */,
 				3E13CECF25F35F8700892360 /* CoreDataFeed.swift in Sources */,
