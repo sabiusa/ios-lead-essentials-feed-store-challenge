@@ -127,8 +127,20 @@ private extension FeedStoreChallengeTests {
 			)
 		}
 		
+		static func exchangeSaveImplementations() {
+			exchangeImplementations(
+				of: NSManagedObjectContext.self, method1: #selector(NSManagedObjectContext.save),
+				to: Swizzler.self, method2: #selector(save)
+			)
+		}
+		
 		@objc
 		private func fetch(_ request: NSFetchRequest<NSFetchRequestResult>) throws -> [Any] {
+			throw anyNSError()
+		}
+		
+		@objc
+		private func save() throws {
 			throw anyNSError()
 		}
 		
@@ -169,21 +181,32 @@ extension FeedStoreChallengeTests: FailableRetrieveFeedStoreSpecs {
 	}
 }
 
-//extension FeedStoreChallengeTests: FailableInsertFeedStoreSpecs {
+extension FeedStoreChallengeTests: FailableInsertFeedStoreSpecs {
+
+	func test_insert_deliversErrorOnInsertionError() throws {
+		let sut = try makeSUT()
+		
+		simulateContextSaveFailure()
+
+		assertThatInsertDeliversErrorOnInsertionError(on: sut)
+		
+		revertForcingSaveFailure()
+	}
+
+	func test_insert_hasNoSideEffectsOnInsertionError() throws {
+//		let sut = try makeSUT()
 //
-//	func test_insert_deliversErrorOnInsertionError() throws {
-////		let sut = try makeSUT()
-////
-////		assertThatInsertDeliversErrorOnInsertionError(on: sut)
-//	}
-//
-//	func test_insert_hasNoSideEffectsOnInsertionError() throws {
-////		let sut = try makeSUT()
-////
-////		assertThatInsertHasNoSideEffectsOnInsertionError(on: sut)
-//	}
-//
-//}
+//		assertThatInsertHasNoSideEffectsOnInsertionError(on: sut)
+	}
+
+	private func simulateContextSaveFailure() {
+		Swizzler.exchangeSaveImplementations()
+	}
+	
+	private func revertForcingSaveFailure() {
+		Swizzler.exchangeSaveImplementations()
+	}
+}
 
 //extension FeedStoreChallengeTests: FailableDeleteFeedStoreSpecs {
 //
