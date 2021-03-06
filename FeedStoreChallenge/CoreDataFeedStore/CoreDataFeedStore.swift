@@ -31,15 +31,7 @@ public class CoreDataFeedStore: FeedStore {
 	
 	public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
 		context.perform { [context] in
-			let feedImages: [CoreDataFeedImage] = feed.map { localImage in
-				let feedImage = CoreDataFeedImage(context: context)
-				feedImage.id = localImage.id
-				feedImage.imageDescription = localImage.description
-				feedImage.location = localImage.location
-				feedImage.url = localImage.url
-				return feedImage
-			}
-			
+			let feedImages = feed.map { CoreDataFeedImage.fromLocal($0, in: context) }
 			let coreDataFeed = CoreDataFeed(context: context)
 			coreDataFeed.timestamp = timestamp
 			coreDataFeed.feedImages = NSOrderedSet(array: feedImages)
@@ -65,17 +57,7 @@ public class CoreDataFeedStore: FeedStore {
 			
 			do {
 				if let feed = try context.fetch(request).first {
-					let localFeed = feed.feedImages
-						.compactMap { $0 as? CoreDataFeedImage }
-						.map {
-							return LocalFeedImage(
-								id: $0.id,
-								description: $0.imageDescription,
-								location: $0.location,
-								url: $0.url
-							)
-						}
-					completion(.found(feed: localFeed, timestamp: feed.timestamp))
+					completion(.found(feed: feed.localFeed, timestamp: feed.timestamp))
 				} else {
 					completion(.empty)
 				}
@@ -135,10 +117,34 @@ private class CoreDataFeedImage: NSManagedObject {
 	@NSManaged var location: String?
 	@NSManaged var url: URL
 	@NSManaged var feed: CoreDataFeed
+	
+	static func fromLocal(_ local: LocalFeedImage, in context: NSManagedObjectContext) -> CoreDataFeedImage {
+		let image = CoreDataFeedImage(context: context)
+		image.id = local.id
+		image.imageDescription = local.description
+		image.location = local.location
+		image.url = local.url
+		return image
+	}
+	
+	func toLocal() -> LocalFeedImage {
+		return LocalFeedImage(
+			id: id,
+			description: imageDescription,
+			location: location,
+			url: url
+		)
+	}
 }
 
 @objc(CoreDataFeed)
 private class CoreDataFeed: NSManagedObject {
 	@NSManaged var timestamp: Date
 	@NSManaged var feedImages: NSOrderedSet
+	
+	var localFeed: [LocalFeedImage] {
+		return feedImages
+			.compactMap { $0 as? CoreDataFeedImage }
+			.map { $0.toLocal() }
+	}
 }
