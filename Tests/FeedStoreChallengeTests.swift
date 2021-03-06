@@ -107,29 +107,63 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	
 }
 
-//  ***********************
-//
-//  Uncomment the following tests if your implementation has failable operations.
-//
-//  Otherwise, delete the commented out code!
-//
-//  ***********************
+private extension FeedStoreChallengeTests {
+	
+	class Swizzler {
+		private static func exchangeImplementations(
+			of class1: AnyClass, method1: Selector,
+			to class2: AnyClass, method2: Selector
+		) {
+			let originalMethod = class_getInstanceMethod(class1, method1)
+			let swizzledMethod = class_getInstanceMethod(class2, method2)
+			
+			method_exchangeImplementations(originalMethod!, swizzledMethod!)
+		}
+		
+		static func exchangeFetchImplementations() {
+			exchangeImplementations(
+				of: NSManagedObjectContext.self, method1: #selector(NSManagedObjectContext.fetch),
+				to: Swizzler.self, method2: #selector(fetch)
+			)
+		}
+		
+		@objc
+		private func fetch(_ request: NSFetchRequest<NSFetchRequestResult>) throws -> [Any] {
+			throw anyNSError()
+		}
+		
+		private func anyNSError() -> NSError {
+			return NSError(domain: "any error", code: 0)
+		}
+	}
+}
 
-//extension FeedStoreChallengeTests: FailableRetrieveFeedStoreSpecs {
+extension FeedStoreChallengeTests: FailableRetrieveFeedStoreSpecs {
+
+	func test_retrieve_deliversFailureOnRetrievalError() throws {
+		let sut = try makeSUT()
+		
+		simulateContextResultFetchFailure()
+
+		assertThatRetrieveDeliversFailureOnRetrievalError(on: sut)
+		
+		revertForcingResultFetchFailure()
+	}
+
+	func test_retrieve_hasNoSideEffectsOnFailure() throws {
+//		let sut = try makeSUT()
 //
-//	func test_retrieve_deliversFailureOnRetrievalError() throws {
-////		let sut = try makeSUT()
-////
-////		assertThatRetrieveDeliversFailureOnRetrievalError(on: sut)
-//	}
-//
-//	func test_retrieve_hasNoSideEffectsOnFailure() throws {
-////		let sut = try makeSUT()
-////
-////		assertThatRetrieveHasNoSideEffectsOnFailure(on: sut)
-//	}
-//
-//}
+//		assertThatRetrieveHasNoSideEffectsOnFailure(on: sut)
+	}
+
+	private func simulateContextResultFetchFailure() {
+		Swizzler.exchangeFetchImplementations()
+	}
+	
+	private func revertForcingResultFetchFailure() {
+		Swizzler.exchangeFetchImplementations()
+	}
+}
 
 //extension FeedStoreChallengeTests: FailableInsertFeedStoreSpecs {
 //
