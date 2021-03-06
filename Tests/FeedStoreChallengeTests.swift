@@ -107,49 +107,6 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	
 }
 
-private extension FeedStoreChallengeTests {
-	
-	class Swizzler {
-		private static func exchangeImplementations(
-			of class1: AnyClass, method1: Selector,
-			to class2: AnyClass, method2: Selector
-		) {
-			let originalMethod = class_getInstanceMethod(class1, method1)
-			let swizzledMethod = class_getInstanceMethod(class2, method2)
-			
-			method_exchangeImplementations(originalMethod!, swizzledMethod!)
-		}
-		
-		static func exchangeFetchImplementations() {
-			exchangeImplementations(
-				of: NSManagedObjectContext.self, method1: #selector(NSManagedObjectContext.fetch),
-				to: Swizzler.self, method2: #selector(fetch)
-			)
-		}
-		
-		static func exchangeSaveImplementations() {
-			exchangeImplementations(
-				of: NSManagedObjectContext.self, method1: #selector(NSManagedObjectContext.save),
-				to: Swizzler.self, method2: #selector(save)
-			)
-		}
-		
-		@objc
-		private func fetch(_ request: NSFetchRequest<NSFetchRequestResult>) throws -> [Any] {
-			throw anyNSError()
-		}
-		
-		@objc
-		private func save() throws {
-			throw anyNSError()
-		}
-		
-		private func anyNSError() -> NSError {
-			return NSError(domain: "any error", code: 0)
-		}
-	}
-}
-
 extension FeedStoreChallengeTests: FailableRetrieveFeedStoreSpecs {
 
 	func test_retrieve_deliversFailureOnRetrievalError() throws {
@@ -258,5 +215,48 @@ extension FeedStoreChallengeTests: FailableDeleteFeedStoreSpecs {
 	
 	private func revertForcingDeletionFailure() {
 		Swizzler.exchangeSaveImplementations()
+	}
+}
+
+private extension FeedStoreChallengeTests {
+	
+	class Swizzler {
+		static func exchangeFetchImplementations() {
+			exchangeImplementations(
+				of: NSManagedObjectContext.self, method1: #selector(NSManagedObjectContext.fetch),
+				to: Swizzler.self, method2: #selector(fetch)
+			)
+		}
+		
+		static func exchangeSaveImplementations() {
+			exchangeImplementations(
+				of: NSManagedObjectContext.self, method1: #selector(NSManagedObjectContext.save),
+				to: Swizzler.self, method2: #selector(save)
+			)
+		}
+		
+		private static func exchangeImplementations(
+			of class1: AnyClass, method1: Selector,
+			to class2: AnyClass, method2: Selector
+		) {
+			let originalMethod = class_getInstanceMethod(class1, method1)
+			let swizzledMethod = class_getInstanceMethod(class2, method2)
+			
+			method_exchangeImplementations(originalMethod!, swizzledMethod!)
+		}
+		
+		@objc
+		private func fetch(_ request: NSFetchRequest<NSFetchRequestResult>) throws -> [Any] {
+			throw anyNSError()
+		}
+		
+		@objc
+		private func save() throws {
+			throw anyNSError()
+		}
+		
+		private func anyNSError() -> NSError {
+			return NSError(domain: "any error", code: 0)
+		}
 	}
 }
