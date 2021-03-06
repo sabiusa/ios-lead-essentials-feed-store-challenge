@@ -11,8 +11,12 @@ import CoreData
 public class CoreDataFeedStore: FeedStore {
 	private let container: NSPersistentContainer
 	
-	public init(bundle: Bundle = .main) throws {
-		container = try NSPersistentContainer.load(named: "\(CoreDataFeedStore.self)", in: bundle)
+	public init(storeURL: URL, bundle: Bundle = .main) throws {
+		container = try NSPersistentContainer.load(
+			named: "\(CoreDataFeedStore.self)",
+			storeURL: storeURL,
+			in: bundle
+		)
 	}
 	
 	public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
@@ -35,12 +39,17 @@ private extension NSPersistentContainer {
 		case loadPersistentStores(Error)
 	}
 	
-	static func load(named name: String, in bundle: Bundle) throws -> NSPersistentContainer {
+	static func load(
+		named name: String,
+		storeURL: URL,
+		in bundle: Bundle
+	) throws -> NSPersistentContainer {
 		guard let model = NSManagedObjectModel.load(named: name, in: bundle) else {
 			throw LoadError.loadManagedObjectModel
 		}
 		
 		let container = NSPersistentContainer(name: name, managedObjectModel: model)
+		container.persistentStoreDescriptions = [NSPersistentStoreDescription(url: storeURL)]
 
 		var loadError: Error?
 		container.loadPersistentStores { _, error in

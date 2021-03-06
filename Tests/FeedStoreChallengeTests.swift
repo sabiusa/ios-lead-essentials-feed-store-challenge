@@ -95,9 +95,14 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	
 	private func makeSUT() throws -> FeedStore {
 		let bundle = Bundle(for: CoreDataFeedStore.self)
-		let sut = try! CoreDataFeedStore(bundle: bundle)
+		let storeURL = URL(fileURLWithPath: artifactlessStoreURLPath)
+		let sut = try! CoreDataFeedStore(storeURL: storeURL, bundle: bundle)
 		trackMemoryLeaks(sut)
 		return sut
+	}
+	
+	private var artifactlessStoreURLPath: String {
+		return "/dev/null"
 	}
 	
 }
