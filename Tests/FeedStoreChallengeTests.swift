@@ -233,6 +233,20 @@ extension FeedStoreChallengeTests: FailableDeleteFeedStoreSpecs {
 		
 		revertForcingDeletionFailure()
 	}
+	
+	func test_delete_hasNoSideEffectsOnNonEmptyCacheOnDeletionError() throws {
+		let sut = try makeSUT()
+		let feed = uniqueImageFeed()
+		let timestamp = Date()
+		
+		insert((feed, timestamp), to: sut)
+		
+		simulateDeletionFailure()
+		deleteCache(from: sut)
+		revertForcingDeletionFailure()
+		
+		expect(sut, toRetrieve: .found(feed: feed, timestamp: timestamp))
+	}
 
 	private func simulateDeletionFailure() {
 		Swizzler.exchangeSaveImplementations()
