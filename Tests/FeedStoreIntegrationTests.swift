@@ -74,17 +74,24 @@ class FeedStoreIntegrationTests: XCTestCase {
 	private func makeSUT() throws -> FeedStore {
 		let bundle = Bundle(for: CoreDataFeedStore.self)
 		let storeURL = testSpecificStoreURL()
-		let sut = try! CoreDataFeedStore(storeURL: storeURL, bundle: bundle)
+		let sut = try CoreDataFeedStore(storeURL: storeURL, bundle: bundle)
 		trackMemoryLeaks(sut)
 		return sut
 	}
 	
+	private func deleteStoreArtifacts() throws {
+		let storeURL = testSpecificStoreURL()
+		if FileManager.default.fileExists(atPath: storeURL.path) {
+			try FileManager.default.removeItem(at: storeURL)
+		}
+	}
+	
 	private func setupEmptyStoreState() throws {
-		
+		try deleteStoreArtifacts()
 	}
 	
 	private func undoStoreSideEffects() throws {
-		
+		try deleteStoreArtifacts()
 	}
 	
 	private func testSpecificStoreURL() -> URL {
