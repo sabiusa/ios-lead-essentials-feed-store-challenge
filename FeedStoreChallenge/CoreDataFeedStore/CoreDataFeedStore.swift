@@ -12,10 +12,6 @@ public class CoreDataFeedStore: FeedStore {
 	private let container: NSPersistentContainer
 	private let context: NSManagedObjectContext
 	
-	enum CoreDataError: Error {
-		case missingEntityName
-	}
-	
 	public init(storeURL: URL, bundle: Bundle = .main) throws {
 		container = try NSPersistentContainer.load(
 			named: "\(CoreDataFeedStore.self)",
@@ -47,16 +43,8 @@ public class CoreDataFeedStore: FeedStore {
 	
 	public func retrieve(completion: @escaping RetrievalCompletion) {
 		context.perform { [context] in
-			guard let name = CoreDataFeed.entity().name else {
-				return completion(.failure(CoreDataError.missingEntityName))
-			}
-			
-			let request = NSFetchRequest<CoreDataFeed>(entityName: name)
-			request.fetchBatchSize = 0
-			request.returnsObjectsAsFaults = false
-			
 			do {
-				if let feed = try context.fetch(request).first {
+				if let feed = try CoreDataFeed.fetchAll(in: context) {
 					completion(.found(feed: feed.localFeed, timestamp: feed.timestamp))
 				} else {
 					completion(.empty)
@@ -146,5 +134,20 @@ private class CoreDataFeed: NSManagedObject {
 		return feedImages
 			.compactMap { $0 as? CoreDataFeedImage }
 			.map { $0.toLocal() }
+	}
+	
+	enum Error: Swift.Error {
+		case missingEntityName
+	}
+	
+	static func fetchAll(in context: NSManagedObjectContext) throws -> CoreDataFeed? {
+		guard let name = CoreDataFeed.entity().name else {
+			throw Error.missingEntityName
+		}
+		
+		let request = NSFetchRequest<CoreDataFeed>(entityName: name)
+		request.fetchBatchSize = 0
+		request.returnsObjectsAsFaults = false
+		return try context.fetch(request).first
 	}
 }
