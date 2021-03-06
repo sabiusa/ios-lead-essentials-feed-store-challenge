@@ -241,11 +241,15 @@ extension FeedStoreChallengeTests: FailableDeleteFeedStoreSpecs {
 		
 		insert((feed, timestamp), to: sut)
 		
+		failToDeleteCache(from: sut)
+		
+		expect(sut, toRetrieve: .found(feed: feed, timestamp: timestamp))
+	}
+	
+	private func failToDeleteCache(from sut: FeedStore) {
 		simulateDeletionFailure()
 		deleteCache(from: sut)
 		revertForcingDeletionFailure()
-		
-		expect(sut, toRetrieve: .found(feed: feed, timestamp: timestamp))
 	}
 
 	private func simulateDeletionFailure() {
