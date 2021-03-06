@@ -27,12 +27,12 @@ public class CoreDataFeedStore: FeedStore {
 	
 	public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
 		context.perform { [context] in
-			let feedImages = feed.map { CoreDataFeedImage.fromLocal($0, in: context) }
-			let coreDataFeed = CoreDataFeed(context: context)
-			coreDataFeed.timestamp = timestamp
-			coreDataFeed.feedImages = NSOrderedSet(array: feedImages)
-			
 			do {
+				try CoreDataFeed.freshInstance(
+					from: feed,
+					timestamp: timestamp,
+					in: context
+				)
 				try context.save()
 				completion(nil)
 			} catch {
@@ -138,6 +138,20 @@ private class CoreDataFeed: NSManagedObject {
 	
 	enum Error: Swift.Error {
 		case missingEntityName
+	}
+	
+	@discardableResult
+	static func freshInstance(
+		from feed: [LocalFeedImage],
+		timestamp: Date,
+		in context: NSManagedObjectContext
+	) throws -> CoreDataFeed {
+		try fetchAll(in: context).map(context.delete(_:))
+		let feedImages = feed.map { CoreDataFeedImage.fromLocal($0, in: context) }
+		let coreDataFeed = CoreDataFeed(context: context)
+		coreDataFeed.timestamp = timestamp
+		coreDataFeed.feedImages = NSOrderedSet(array: feedImages)
+		return coreDataFeed
 	}
 	
 	static func fetchAll(in context: NSManagedObjectContext) throws -> CoreDataFeed? {
