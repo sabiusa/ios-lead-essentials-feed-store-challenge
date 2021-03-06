@@ -212,18 +212,29 @@ extension FeedStoreChallengeTests: FailableInsertFeedStoreSpecs {
 	}
 }
 
-//extension FeedStoreChallengeTests: FailableDeleteFeedStoreSpecs {
+extension FeedStoreChallengeTests: FailableDeleteFeedStoreSpecs {
+
+	func test_delete_deliversErrorOnDeletionError() throws {
+		let sut = try makeSUT()
+		
+		simulateDeletionFailure()
+
+		assertThatDeleteDeliversErrorOnDeletionError(on: sut)
+		
+		revertForcingDeletionFailure()
+	}
+
+	func test_delete_hasNoSideEffectsOnDeletionError() throws {
+//		let sut = try makeSUT()
 //
-//	func test_delete_deliversErrorOnDeletionError() throws {
-////		let sut = try makeSUT()
-////
-////		assertThatDeleteDeliversErrorOnDeletionError(on: sut)
-//	}
-//
-//	func test_delete_hasNoSideEffectsOnDeletionError() throws {
-////		let sut = try makeSUT()
-////
-////		assertThatDeleteHasNoSideEffectsOnDeletionError(on: sut)
-//	}
-//
-//}
+//		assertThatDeleteHasNoSideEffectsOnDeletionError(on: sut)
+	}
+
+	private func simulateDeletionFailure() {
+		Swizzler.exchangeSaveImplementations()
+	}
+	
+	private func revertForcingDeletionFailure() {
+		Swizzler.exchangeSaveImplementations()
+	}
+}
