@@ -14,7 +14,7 @@ public class CoreDataFeedStore: FeedStore {
 	
 	public init(storeURL: URL, bundle: Bundle = .main) throws {
 		container = try NSPersistentContainer.load(
-			named: "\(CoreDataFeedStore.self)",
+			named: "CoreDataFeedStore",
 			storeURL: storeURL,
 			in: bundle
 		)
