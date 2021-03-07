@@ -24,7 +24,7 @@ public class CoreDataFeedStore: FeedStore {
 	public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
 		context.perform { [context] in
 			do {
-				try CoreDataFeed.fetchAll(in: context).map(context.delete(_:))
+				try CoreDataFeed.fetchFirst(in: context).map(context.delete(_:))
 				try context.save()
 				completion(nil)
 			} catch {
@@ -54,7 +54,7 @@ public class CoreDataFeedStore: FeedStore {
 	public func retrieve(completion: @escaping RetrievalCompletion) {
 		context.perform { [context] in
 			do {
-				if let feed = try CoreDataFeed.fetchAll(in: context) {
+				if let feed = try CoreDataFeed.fetchFirst(in: context) {
 					completion(.found(feed: feed.localFeed, timestamp: feed.timestamp))
 				} else {
 					completion(.empty)
@@ -156,7 +156,7 @@ private class CoreDataFeed: NSManagedObject {
 		timestamp: Date,
 		in context: NSManagedObjectContext
 	) throws -> CoreDataFeed {
-		try fetchAll(in: context).map(context.delete(_:))
+		try fetchFirst(in: context).map(context.delete(_:))
 		let feedImages = feed.map { CoreDataFeedImage.fromLocal($0, in: context) }
 		let coreDataFeed = CoreDataFeed(context: context)
 		coreDataFeed.timestamp = timestamp
@@ -164,7 +164,7 @@ private class CoreDataFeed: NSManagedObject {
 		return coreDataFeed
 	}
 	
-	static func fetchAll(in context: NSManagedObjectContext) throws -> CoreDataFeed? {
+	static func fetchFirst(in context: NSManagedObjectContext) throws -> CoreDataFeed? {
 		guard let name = CoreDataFeed.entity().name else {
 			throw Error.missingEntityName
 		}
